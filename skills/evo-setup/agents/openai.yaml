@@ -1,0 +1,7 @@
+interface:
+  display_name: "Evo Dev Setup"
+  short_description: "Apply personal preferences without overwriting"
+  default_prompt: "Use $evo-setup to apply the bundled personal preferences while preserving existing configuration."
+
+policy:
+  allow_implicit_invocation: false

@@ -1,5 +1,5 @@
 # Compatible with Windows PowerShell 5.1 and PowerShell 7.
-param([string]$UserDirectory = $HOME)
+param([string]$UserDirectory = $HOME, [switch]$ProfileOnly)
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
@@ -55,17 +55,21 @@ function Install-Missing([string]$Source, [string]$Target) {
     Write-Output "INSTALLED: $Target"
 }
 
-foreach ($evoRequired in @('profile/AGENTS.md', 'skills/project-setup/SKILL.md', 'skills/project-setup/agents/openai.yaml')) {
+$evoRequiredFiles = @('profile/AGENTS.md')
+if (-not $ProfileOnly) { $evoRequiredFiles += @('skills/project-setup/SKILL.md', 'skills/project-setup/agents/openai.yaml') }
+foreach ($evoRequired in $evoRequiredFiles) {
     if (-not (Test-Path -LiteralPath (Join-Path $evoRoot $evoRequired) -PathType Leaf)) {
         throw "Missing package file: $evoRequired"
     }
 }
 Install-Missing (Join-Path $evoRoot 'profile/AGENTS.md') (Join-Path $evoCodexDirectory 'AGENTS.md')
-$evoAlternate = Join-Path $evoCodexDirectory 'skills/project-setup'
-if ($null -ne (Get-Item -LiteralPath $evoAlternate -Force -ErrorAction SilentlyContinue)) {
-    Report-Conflict "$evoAlternate already exists; review this alternate installation before adding another"
-} else {
-    Install-Missing (Join-Path $evoRoot 'skills/project-setup') $evoSkillDirectory
+if (-not $ProfileOnly) {
+    $evoAlternate = Join-Path $evoCodexDirectory 'skills/project-setup'
+    if ($null -ne (Get-Item -LiteralPath $evoAlternate -Force -ErrorAction SilentlyContinue)) {
+        Report-Conflict "$evoAlternate already exists; review this alternate installation before adding another"
+    } else {
+        Install-Missing (Join-Path $evoRoot 'skills/project-setup') $evoSkillDirectory
+    }
 }
 $evoOverride = Join-Path $evoCodexDirectory 'AGENTS.override.md'
 if ($null -ne (Get-Item -LiteralPath $evoOverride -Force -ErrorAction SilentlyContinue)) {

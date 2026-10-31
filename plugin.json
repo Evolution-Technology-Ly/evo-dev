@@ -1,0 +1,23 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "evo-dev",
+  "version": "0.1.0",
+  "description": "Evolution Technology development preferences and explicit repository onboarding for Codex.",
+  "author": {
+    "name": "Evolution Technology",
+    "url": "https://github.com/Evolution-Technology-Ly"
+  },
+  "repository": "https://github.com/Evolution-Technology-Ly/evo-dev",
+  "extensions": {
+    "com.openai": {
+      "onboardingSkill": "./skills/evo-setup/SKILL.md",
+      "interface": {
+        "displayName": "Evo Dev",
+        "shortDescription": "Personal preferences and concise repository guidance",
+        "developerName": "Evolution Technology",
+        "category": "Productivity",
+        "websiteURL": "https://github.com/Evolution-Technology-Ly/evo-dev"
+      }
+    }
+  }
+}

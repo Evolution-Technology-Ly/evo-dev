@@ -28,9 +28,9 @@ class InstallerChecks:
         self.environment = os.environ.copy()
         self.environment.pop('CODEX_HOME', None)
 
-    def run_setup(self, expected=0):
+    def run_setup(self, expected=0, profile_only=False):
         result = subprocess.run(
-            self.command + [str(self.user)], cwd=self.temporary.name,
+            self.command + [str(self.user)] + ([self.profile_only_option] if profile_only else []), cwd=self.temporary.name,
             env=self.environment, capture_output=True, text=True, timeout=30,
         )
         self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
@@ -82,6 +82,22 @@ class InstallerChecks:
         self.assertFalse(self.codex.exists())
         self.assertTrue((self.skill / 'SKILL.md').is_file())
 
+    def test_profile_only_installs_no_standalone_skills(self):
+        self.run_setup(profile_only=True)
+        self.assertEqual((self.codex / 'AGENTS.md').read_bytes(), (ROOT / 'profile/AGENTS.md').read_bytes())
+        self.assertFalse((self.user / '.agents').exists())
+        before = snapshot(self.user)
+        self.run_setup(profile_only=True)
+        self.assertEqual(before, snapshot(self.user))
+
+    def test_profile_only_preserves_differing_preferences_and_existing_skills(self):
+        self.write(self.codex / 'AGENTS.md', 'My existing personal rules')
+        self.write(self.skill / 'SKILL.md', 'My customized skill')
+        self.write(self.codex / 'skills/project-setup/SKILL.md', 'My legacy skill')
+        before = snapshot(self.user)
+        self.run_setup(expected=1, profile_only=True)
+        self.assertEqual(before, snapshot(self.user))
+
     def test_alternate_skill_installation_prevents_duplicate(self):
         self.write(self.codex / 'skills/project-setup/SKILL.md', 'Legacy installation')
         self.run_setup(expected=1)
@@ -124,12 +140,14 @@ class InstallerChecks:
 @unittest.skipUnless(shutil.which('sh'), 'POSIX shell unavailable')
 class ShellInstallerTests(InstallerChecks, unittest.TestCase):
     command = ['sh', str(ROOT / 'setup.sh'), '--user-directory']
+    profile_only_option = '--profile-only'
 
 
 @unittest.skipUnless(shutil.which('pwsh') or shutil.which('powershell'), 'PowerShell unavailable')
 class PowerShellInstallerTests(InstallerChecks, unittest.TestCase):
     command = [shutil.which('pwsh') or shutil.which('powershell') or 'pwsh',
                '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(ROOT / 'setup.ps1'), '-UserDirectory']
+    profile_only_option = '-ProfileOnly'
 
 
 if __name__ == '__main__':

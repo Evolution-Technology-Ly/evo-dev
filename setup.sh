@@ -4,13 +4,21 @@ set -eu
 
 evo_root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 evo_user_directory=${HOME:?HOME must identify your user directory}
-if [ "$#" -ne 0 ]; then
-    if [ "$#" -ne 2 ] || [ "$1" != '--user-directory' ] || [ -z "$2" ]; then
-        printf '%s\n' 'Usage: sh setup.sh [--user-directory PATH]' >&2
-        exit 1
-    fi
-    evo_user_directory=$2
-fi
+evo_profile_only=false
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --profile-only) evo_profile_only=true; shift ;;
+        --user-directory)
+            if [ "$#" -lt 2 ] || [ -z "$2" ]; then
+                printf '%s\n' '--user-directory requires a path' >&2
+                exit 1
+            fi
+            evo_user_directory=$2; shift 2 ;;
+        *)
+            printf '%s\n' 'Usage: sh setup.sh [--profile-only] [--user-directory PATH]' >&2
+            exit 1 ;;
+    esac
+done
 evo_codex_directory=${CODEX_HOME:-"$evo_user_directory/.codex"}
 evo_skill_directory="$evo_user_directory/.agents/skills/project-setup"
 evo_status=0
@@ -47,14 +55,18 @@ install_missing() {
 
 # Check the package before making any installation changes.
 test -f "$evo_root/profile/AGENTS.md"
-test -f "$evo_root/skills/project-setup/SKILL.md"
-test -f "$evo_root/skills/project-setup/agents/openai.yaml"
+if [ "$evo_profile_only" = false ]; then
+    test -f "$evo_root/skills/project-setup/SKILL.md"
+    test -f "$evo_root/skills/project-setup/agents/openai.yaml"
+fi
 
 install_missing "$evo_root/profile/AGENTS.md" "$evo_codex_directory/AGENTS.md"
-if [ -e "$evo_codex_directory/skills/project-setup" ] || [ -L "$evo_codex_directory/skills/project-setup" ]; then
-    conflict "$evo_codex_directory/skills/project-setup already exists; review this alternate installation before adding another"
-else
-    install_missing "$evo_root/skills/project-setup" "$evo_skill_directory"
+if [ "$evo_profile_only" = false ]; then
+    if [ -e "$evo_codex_directory/skills/project-setup" ] || [ -L "$evo_codex_directory/skills/project-setup" ]; then
+        conflict "$evo_codex_directory/skills/project-setup already exists; review this alternate installation before adding another"
+    else
+        install_missing "$evo_root/skills/project-setup" "$evo_skill_directory"
+    fi
 fi
 if [ -e "$evo_codex_directory/AGENTS.override.md" ] || [ -L "$evo_codex_directory/AGENTS.override.md" ]; then
     conflict "$evo_codex_directory/AGENTS.override.md exists; review whether it overrides the installed preferences"
