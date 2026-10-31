@@ -1,0 +1,7 @@
+interface:
+  display_name: "Evo Project Setup"
+  short_description: "Prepare concise repository guidance safely"
+  default_prompt: "Use $project-setup to prepare this repository with verified guidance and a checkpoint only when needed."
+
+policy:
+  allow_implicit_invocation: false
