@@ -14,10 +14,10 @@ codex plugin add evo-dev@evo-dev
 Codex downloads and caches the package. Open a new Codex desktop or CLI chat and explicitly select **Evo Dev Setup**, or invoke its skill:
 
 ```text
-$evo-setup
+$evo-dev:evo-setup
 ```
 
-The plugin declares this as its onboarding skill, so supported desktop versions can also expose it through the plugin's setup action. If the host qualifies skill names with `evo-dev`, select the matching skill in the picker.
+The plugin declares this as its onboarding skill, so supported desktop versions can also expose it through the plugin's setup action. Codex namespaces the bundled skills with `evo-dev:`; you can also select their display names in the skill picker.
 
 If `codex` is not on your terminal PATH, you can ask Codex in the desktop app:
 
@@ -47,10 +47,10 @@ If you previously installed standalone project-setup, review local customization
 After profile setup, start a new chat in the project's actual Git root (for example the backend repository, rather than its parent directory). Invoke or select:
 
 ```text
-$project-setup
+$evo-dev:project-setup
 ```
 
-You may add a scope: `$project-setup Focus on the backend.` It inspects current implementation, representative tests, existing instructions, and Git before creating or improving concise AGENTS.md guidance. It preserves useful rules and existing work; a checkpoint is created only for a real task continuity need. It carries no EvoCommerce-specific architecture or business rules.
+You may add a scope: `$evo-dev:project-setup Focus on the backend.` It inspects current implementation, representative tests, existing instructions, and Git before creating or improving concise AGENTS.md guidance. It preserves useful rules and existing work; a checkpoint is created only for a real task continuity need. It carries no EvoCommerce-specific architecture or business rules.
 
 Review the documentation diff, then describe normal development tasks. Rerun Project Setup only to onboard another repository or deliberately refresh its guidance. Repository instructions and task checkpoints stay with their projects; evo-dev does not synchronize uncommitted code or conversations. Scoped project instructions take precedence over personal defaults as described in the [official instruction guide](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
 
